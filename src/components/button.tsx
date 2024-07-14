@@ -26,11 +26,7 @@ interface ButtonProps
 }
 export function Button({ children, variant, size, ...props }: ButtonProps) {
   return (
-    <button
-      {...props}
-      type="button"
-      className={buttonVariants({ variant, size })}
-    >
+    <button {...props} className={buttonVariants({ variant, size })}>
       {children}
     </button>
   )
