@@ -1,12 +1,33 @@
+import { FormEvent } from 'react'
+
 import { Button } from './button'
 
+import { api } from '@/lib/axios'
 import { X, Tag, Calendar } from 'lucide-react'
 
 interface CreateActivityModalProps {
+  id: string
   closeCreateActivityModal: () => void
 }
 
 export function CreateActivityModal(props: CreateActivityModalProps) {
+  async function handleCreateActivity(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const data = new FormData(event.currentTarget)
+    const title = data.get('title')
+    const occurs_at = data.get('occurs_at')
+    if (!title || !occurs_at) return
+
+    await api.post(`/trips/${props.id}/activities`, {
+      title,
+      occurs_at,
+    })
+
+    // props.closeCreateActivityModal()
+    window.location.reload()
+  }
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/60 ">
       <div className="w-[640px] space-y-2.5 rounded-xl bg-zinc-900 px-6 py-5 shadow-shape">
@@ -22,7 +43,7 @@ export function CreateActivityModal(props: CreateActivityModalProps) {
           </p>
         </div>
         <div className="flex flex-wrap gap-2"></div>
-        <form className="space-y-3">
+        <form onSubmit={handleCreateActivity} className="space-y-3">
           <div className="flex h-14 items-center gap-2 rounded-lg border-zinc-800 bg-zinc-950 px-4">
             <Tag className="h-5 w-5 text-zinc-400" />
             <input

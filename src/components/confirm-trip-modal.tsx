@@ -6,6 +6,8 @@ import { X, User, Mail } from 'lucide-react'
 
 interface ConfirmTripModalProps {
   closeConfirmationModal: () => void
+  setOwnerName: (name: string) => void
+  setOwnerEmail: (email: string) => void
   createTrip: (event: FormEvent<HTMLFormElement>) => void
 }
 
@@ -40,6 +42,7 @@ export function ConfirmTripModal(props: ConfirmTripModalProps) {
               className="placeholder-bg-zinc-400 flex-1 bg-transparent text-lg outline-none"
               name="name"
               placeholder="Seu nome completo"
+              onChange={(e) => props.setOwnerName(e.target.value)}
             />
           </div>
 
@@ -50,6 +53,7 @@ export function ConfirmTripModal(props: ConfirmTripModalProps) {
               type="email"
               name="email"
               placeholder="Seu nome e-mail de convidado"
+              onChange={(e) => props.setOwnerEmail(e.target.value)}
             />
           </div>
 

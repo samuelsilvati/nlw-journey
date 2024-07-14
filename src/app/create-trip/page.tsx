@@ -2,15 +2,25 @@
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { FormEvent, useState } from 'react'
+import { DateRange } from 'react-day-picker'
 
 import { ConfirmTripModal } from '@/components/confirm-trip-modal'
 import { InviteGuestsModal } from '@/components/invite-guests-modal'
 import { DestinationAndDateStep } from '@/components/steps/destination-and-date-step'
 import { InviteGuestsStep } from '@/components/steps/invite-guests-step'
+import { api } from '@/lib/axios'
 export default function CreateTripPage() {
   const router = useRouter()
   const [isGuestsInputVisible, setIsGuestsInputVisible] = useState(false)
   const [isGuestsModalVisible, setIsGuestsModalVisible] = useState(false)
+
+  const [destination, setDestination] = useState('')
+  const [ownerName, setOwnerName] = useState('')
+  const [ownerEmail, setOwnerEmail] = useState('')
+  const [eventStartAndDates, setEventStartAndDates] = useState<
+    DateRange | undefined
+  >()
+
   const [emailsToInvite, setEmailsToInvite] = useState(['user@example.com'])
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
     useState(false)
@@ -51,10 +61,38 @@ export default function CreateTripPage() {
     event.currentTarget?.reset()
   }
 
-  function createTrip(event: FormEvent<HTMLFormElement>) {
+  async function createTrip(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    console.log(event)
-    router.push('/trip-details')
+    console.log(
+      'destination',
+      destination,
+      'emails',
+      emailsToInvite,
+      'eventStartAndDates',
+      eventStartAndDates,
+      'name',
+      ownerName,
+      'email',
+      ownerEmail,
+    )
+    if (!destination) return
+    if (!eventStartAndDates?.from || !eventStartAndDates?.to) return
+    if (emailsToInvite.length === 0) return
+    if (!ownerName) return
+    if (!ownerEmail) return
+
+    const response = await api.post('/trips', {
+      destination,
+      starts_at: eventStartAndDates?.from,
+      ends_at: eventStartAndDates?.to,
+      emails_to_invite: emailsToInvite,
+      owner_name: ownerName,
+      owner_email: ownerEmail,
+    })
+
+    if (response.data.tripId) {
+      router.push(`/trip-details/${response.data.tripId}`)
+    }
   }
 
   function removeEmailToInvite(email: string) {
@@ -79,6 +117,9 @@ export default function CreateTripPage() {
             isGuestsInputVisible={isGuestsInputVisible}
             openGuestsInput={openGuestsInput}
             closeGuestsInput={closeGuestsInput}
+            setDestination={setDestination}
+            setEventStartAndDates={setEventStartAndDates}
+            eventStartAndDates={eventStartAndDates}
           />
 
           {isGuestsInputVisible && (
@@ -116,6 +157,8 @@ export default function CreateTripPage() {
         <ConfirmTripModal
           closeConfirmationModal={closeConfirmationModal}
           createTrip={createTrip}
+          setOwnerName={setOwnerName}
+          setOwnerEmail={setOwnerEmail}
         />
       )}
     </div>
